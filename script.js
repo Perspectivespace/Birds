@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. ГЛОБАЛЬНОЕ СОСТОЯНИЕ ---
     let currentPage = 0;
     let strategyEvents = [];
+    let birdSounds = {};
 
     // --- 3. DOM ЭЛЕМЕНТЫ ---
     const elements = {
@@ -205,29 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
         calculateStrategy();
     }
 
-    function setupSoundEffects() {
-        const birdSounds = {};
-        birdsData.forEach(bird => {
-            const audio = new Audio(bird.sound);
-            audio.volume = 0.3;
-            birdSounds[bird.id] = audio;
-        });
-        const birdCards = document.querySelectorAll('.bird-card');
-        birdCards.forEach(card => {
-            card.addEventListener('mouseover', () => {
-                const birdId = card.dataset.id;
-                const soundToPlay = birdSounds[birdId];
-                if (soundToPlay) {
-                    soundToPlay.currentTime = 0;
-                    soundToPlay.play().catch(error => console.log("Аудио будет доступно после первого клика."));
-                }
-            });
-        });
-    }
-
     // --- 5. ИНИЦИАЛИЗАЦИЯ ---
     renderInitialUI();
-    setupSoundEffects();
     updateDashboard();
     calculateStrategy();
 
@@ -238,21 +218,47 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.prevBtn.addEventListener('click', () => { if (currentPage > 0) { currentPage--; displayStrategyPage(); } });
     elements.nextBtn.addEventListener('click', () => { const totalPages = Math.ceil(strategyEvents.length / PAGE_SIZE); if (currentPage < totalPages - 1) { currentPage++; displayStrategyPage(); } });
 
-    // --- ФОНОВАЯ МУЗЫКА И ВИЗУАЛИЗАТОР ---
+    // --- АУДИОСИСТЕМА ---
     const toggleMusicBtn = document.getElementById('toggle-music-btn');
     const musicIcon = toggleMusicBtn.querySelector('i');
+    const toggleGlobalMuteBtn = document.getElementById('toggle-global-mute-btn');
+    const globalMuteIcon = toggleGlobalMuteBtn.querySelector('i');
+
     const backgroundMusic = new Audio('sounds/background-music.mp3');
     backgroundMusic.loop = true;
     backgroundMusic.volume = 0.2;
 
     let isMusicPlaying = false;
+    let isGloballyMuted = false;
+    
     let audioContext, analyser, source, bufferLength, dataArray;
     let isAudioContextInitialized = false;
 
     const canvas = document.getElementById('music-visualizer');
     const canvasCtx = canvas.getContext('2d');
+    
+    function setupSoundEffects() {
+        birdsData.forEach(bird => {
+            const audio = new Audio(bird.sound);
+            audio.volume = 0.3;
+            birdSounds[bird.id] = audio;
+        });
+        const birdCards = document.querySelectorAll('.bird-card');
+        birdCards.forEach(card => {
+            card.addEventListener('mouseover', () => {
+                if (isGloballyMuted) return;
+                const birdId = card.dataset.id;
+                const soundToPlay = birdSounds[birdId];
+                if (soundToPlay) {
+                    soundToPlay.currentTime = 0;
+                    soundToPlay.play().catch(error => console.log("Аудио будет доступно после первого клика."));
+                }
+            });
+        });
+    }
 
     function initAudioContext() {
+        if (isAudioContextInitialized) return;
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioContext.createAnalyser();
         source = audioContext.createMediaElementSource(backgroundMusic);
@@ -286,8 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleMusic() {
-        if (!isAudioContextInitialized) initAudioContext();
+        initAudioContext();
         isMusicPlaying = !isMusicPlaying;
+
         if (isMusicPlaying) {
             backgroundMusic.play().catch(e => console.error("Ошибка воспроизведения:", e));
             musicIcon.classList.replace('fa-play', 'fa-pause');
@@ -299,5 +306,25 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleMusicBtn.setAttribute('title', 'Включить музыку');
         }
     }
+    
+    function toggleGlobalMute() {
+        isGloballyMuted = !isGloballyMuted;
+
+        backgroundMusic.muted = isGloballyMuted;
+        for (const id in birdSounds) {
+            birdSounds[id].muted = isGloballyMuted;
+        }
+
+        if (isGloballyMuted) {
+            globalMuteIcon.classList.replace('fa-volume-high', 'fa-volume-xmark');
+            toggleGlobalMuteBtn.setAttribute('title', 'Включить все звуки');
+        } else {
+            globalMuteIcon.classList.replace('fa-volume-xmark', 'fa-volume-high');
+            toggleGlobalMuteBtn.setAttribute('title', 'Отключить все звуки');
+        }
+    }
+    
+    setupSoundEffects();
     toggleMusicBtn.addEventListener('click', toggleMusic);
+    toggleGlobalMuteBtn.addEventListener('click', toggleGlobalMute);
 });
