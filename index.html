@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRO | Стратегический калькулятор</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="music-control">
+        <button id="toggle-music-btn" title="Включить музыку">
+            <i class="fas fa-play"></i>
+        </button>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>PRO Стратегический калькулятор</h1>
+            <canvas id="music-visualizer"></canvas>
+        </header>
+
+        <main class="calculator-grid">
+            <section id="dashboard" class="glass-panel">
+                <h2>Текущая производительность</h2>
+                <div id="dashboard-stats">
+                    <div class="stat-card">
+                        <h4>Доход в день (TON)</h4>
+                        <p id="stat-ton">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Доход в день (Золото)</h4>
+                        <p id="stat-gold">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Доход в день (Серебро)</h4>
+                        <p id="stat-silver">0</p>
+                    </div>
+                    <div class="stat-card accent">
+                        <h4>Серебро для покупок (в день)</h4>
+                        <p id="stat-reinvest-silver">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="user-controls" class="glass-panel">
+                <div class="control-block">
+                    <h2>Моя ферма</h2>
+                    <div class="settings-group">
+                        <label for="paste-data">Быстрый ввод (вставьте текст из игры)</label>
+                        <textarea id="paste-data" rows="6" placeholder="Пример:\nBaby: 52\nGreen: 28"></textarea>
+                        <button id="parse-button">Разобрать текст</button>
+                    </div>
+                    <div id="user-inputs-container"></div>
+                </div>
+                <div class="control-block">
+                    <h2>Расширенные настройки</h2>
+                    <div class="settings-group">
+                        <label for="goal-ton">Цель (TON в день)</label>
+                        <input type="number" id="goal-ton" value="1" step="0.1" min="0.1">
+                    </div>
+                    <div class="settings-group">
+                        <label for="reinvest-slider">Процент реинвеста: <span id="reinvest-value">100%</span></label>
+                        <input type="range" id="reinvest-slider" min="0" max="100" value="100">
+                    </div>
+                    <div class="settings-group">
+                        <label for="max-wait-days">Макс. дней ожидания покупки</label>
+                        <input type="number" id="max-wait-days" value="7" min="0">
+                    </div>
+                </div>
+            </section>
+
+            <section id="bird-showcase" class="glass-panel">
+                <h2>Птицы в игре</h2>
+                <div id="bird-cards-container"></div>
+            </section>
+            
+            <section id="strategy-output" class="glass-panel">
+                <div class="strategy-header">
+                    <h2>План развития</h2>
+                    <div class="timeline-navigation">
+                        <button id="prev-days" title="Предыдущие 10 дней">&lt;</button>
+                        <span id="timeline-range">Дни 1-10</span>
+                        <button id="next-days" title="Следующие 10 дней">&gt;</button>
+                    </div>
+                </div>
+                <div id="timeline"></div>
+                <div id="goal-message" class="goal-reached"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
